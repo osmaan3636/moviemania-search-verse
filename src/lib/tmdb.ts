@@ -1,11 +1,12 @@
+
 export const TMDB_CONFIG = {
   BASE_URL: 'https://api.themoviedb.org/3',
   IMAGE_BASE_URL: 'https://image.tmdb.org/t/p',
-  API_KEY: 'your_api_key_here', // Users will need to replace this
+  API_KEY: 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlMzVkNzI3YTFhODNlZTE3YWYyZmMyZWQ2YmMxODJhMiIsIm5iZiI6MTc0ODMxNjQ2NC4xODUsInN1YiI6IjY4MzUzMTMwNWIzOTE0MzM5ZTQxNDlmNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mZPhonW55MNPgEsvldn7KfeygxHN16AipoJl-YhAiA0',
   
   headers: {
     accept: 'application/json',
-    Authorization: `Bearer your_api_key_here` // Users will need to replace this
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlMzVkNzI3YTFhODNlZTE3YWYyZmMyZWQ2YmMxODJhMiIsIm5iZiI6MTc0ODMxNjQ2NC4xODUsInN1YiI6IjY4MzUzMTMwNWIzOTE0MzM5ZTQxNDlmNCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mZPhonW55MNPgEsvldn7KfeygxHN16AipoJl-YhAiA0`
   }
 };
 
