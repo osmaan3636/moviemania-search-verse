@@ -1,30 +1,26 @@
 
 import { X, Star, Calendar, Clock, DollarSign, Users, Play } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { MovieDetails, Cast, fetchMovieDetails, fetchMovieCredits, getImageUrl, formatRuntime, formatCurrency } from '@/lib/tmdb';
+import { Movie, MovieDetails, Cast, fetchMovieDetails, fetchMovieCredits, getImageUrl, formatRuntime, formatCurrency } from '@/lib/tmdb';
 
 interface MovieModalProps {
-  movieId: number;
-  isOpen: boolean;
+  movie: Movie;
   onClose: () => void;
 }
 
-const MovieModal = ({ movieId, isOpen, onClose }: MovieModalProps) => {
-  const { data: movie, isLoading: movieLoading } = useQuery({
-    queryKey: ['movie', movieId],
-    queryFn: () => fetchMovieDetails(movieId),
-    enabled: isOpen && !!movieId,
+const MovieModal = ({ movie, onClose }: MovieModalProps) => {
+  const { data: movieDetails, isLoading: movieLoading } = useQuery({
+    queryKey: ['movie', movie.id],
+    queryFn: () => fetchMovieDetails(movie.id),
   });
 
   const { data: cast, isLoading: castLoading } = useQuery({
-    queryKey: ['movie-credits', movieId],
-    queryFn: () => fetchMovieCredits(movieId),
-    enabled: isOpen && !!movieId,
+    queryKey: ['movie-credits', movie.id],
+    queryFn: () => fetchMovieCredits(movie.id),
   });
 
-  if (!isOpen) return null;
-
   const isLoading = movieLoading || castLoading;
+  const displayMovie = movieDetails || movie;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -45,7 +41,7 @@ const MovieModal = ({ movieId, isOpen, onClose }: MovieModalProps) => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cinema-gold mx-auto"></div>
             <p className="text-gray-400 mt-4">Loading movie details...</p>
           </div>
-        ) : movie ? (
+        ) : (
           <div className="p-6">
             {/* Hero Section */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -62,8 +58,8 @@ const MovieModal = ({ movieId, isOpen, onClose }: MovieModalProps) => {
               <div className="md:col-span-2 space-y-4">
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-2">{movie.title}</h1>
-                  {movie.tagline && (
-                    <p className="text-cinema-gold italic text-lg">{movie.tagline}</p>
+                  {movieDetails?.tagline && (
+                    <p className="text-cinema-gold italic text-lg">{movieDetails.tagline}</p>
                   )}
                 </div>
 
@@ -81,11 +77,13 @@ const MovieModal = ({ movieId, isOpen, onClose }: MovieModalProps) => {
                     <p className="text-gray-400 text-xs">Year</p>
                   </div>
 
-                  <div className="bg-cinema-gray p-3 rounded-lg text-center">
-                    <Clock className="h-5 w-5 text-cinema-gold mx-auto mb-1" />
-                    <p className="text-white font-semibold">{formatRuntime(movie.runtime)}</p>
-                    <p className="text-gray-400 text-xs">Runtime</p>
-                  </div>
+                  {movieDetails?.runtime && (
+                    <div className="bg-cinema-gray p-3 rounded-lg text-center">
+                      <Clock className="h-5 w-5 text-cinema-gold mx-auto mb-1" />
+                      <p className="text-white font-semibold">{formatRuntime(movieDetails.runtime)}</p>
+                      <p className="text-gray-400 text-xs">Runtime</p>
+                    </div>
+                  )}
 
                   <div className="bg-cinema-gray p-3 rounded-lg text-center">
                     <Users className="h-5 w-5 text-cinema-gold mx-auto mb-1" />
@@ -95,19 +93,21 @@ const MovieModal = ({ movieId, isOpen, onClose }: MovieModalProps) => {
                 </div>
 
                 {/* Genres */}
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Genres</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {movie.genres.map((genre) => (
-                      <span
-                        key={genre.id}
-                        className="bg-cinema-gold/20 text-cinema-gold px-3 py-1 rounded-full text-sm"
-                      >
-                        {genre.name}
-                      </span>
-                    ))}
+                {movieDetails?.genres && (
+                  <div>
+                    <h3 className="text-white font-semibold mb-2">Genres</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {movieDetails.genres.map((genre) => (
+                        <span
+                          key={genre.id}
+                          className="bg-cinema-gold/20 text-cinema-gold px-3 py-1 rounded-full text-sm"
+                        >
+                          {genre.name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
@@ -152,31 +152,29 @@ const MovieModal = ({ movieId, isOpen, onClose }: MovieModalProps) => {
             )}
 
             {/* Additional Info */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {movie.budget > 0 && (
-                <div className="bg-cinema-gray p-4 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <DollarSign className="h-5 w-5 text-cinema-gold" />
-                    <h4 className="text-white font-semibold">Budget</h4>
+            {movieDetails && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {movieDetails.budget > 0 && (
+                  <div className="bg-cinema-gray p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <DollarSign className="h-5 w-5 text-cinema-gold" />
+                      <h4 className="text-white font-semibold">Budget</h4>
+                    </div>
+                    <p className="text-gray-300">{formatCurrency(movieDetails.budget)}</p>
                   </div>
-                  <p className="text-gray-300">{formatCurrency(movie.budget)}</p>
-                </div>
-              )}
+                )}
 
-              {movie.revenue > 0 && (
-                <div className="bg-cinema-gray p-4 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <DollarSign className="h-5 w-5 text-cinema-gold" />
-                    <h4 className="text-white font-semibold">Revenue</h4>
+                {movieDetails.revenue > 0 && (
+                  <div className="bg-cinema-gray p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <DollarSign className="h-5 w-5 text-cinema-gold" />
+                      <h4 className="text-white font-semibold">Revenue</h4>
+                    </div>
+                    <p className="text-gray-300">{formatCurrency(movieDetails.revenue)}</p>
                   </div>
-                  <p className="text-gray-300">{formatCurrency(movie.revenue)}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="p-8 text-center">
-            <p className="text-gray-400">Failed to load movie details</p>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
