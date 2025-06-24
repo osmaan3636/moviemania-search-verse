@@ -1,4 +1,3 @@
-
 export const TMDB_CONFIG = {
   BASE_URL: 'https://api.themoviedb.org/3',
   IMAGE_BASE_URL: 'https://image.tmdb.org/t/p',
@@ -117,8 +116,10 @@ export const fetchMovieCredits = async (movieId: number): Promise<Cast[]> => {
   return data.cast;
 };
 
-export const fetchTrendingMovies = async (): Promise<Movie[]> => {
-  const response = await fetch(`${TMDB_CONFIG.BASE_URL}/trending/movie/week`, {
+export const fetchTrendingMovies = async () => {
+  const endpoint = `${TMDB_CONFIG.BASE_URL}/trending/movie/week`;
+  
+  const response = await fetch(endpoint, {
     method: 'GET',
     headers: TMDB_CONFIG.headers,
   });
